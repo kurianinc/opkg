@@ -26,5 +26,75 @@ In the above case, package tool will try to download myapp.tgz from a remote rep
 
 Following is a sample package manifest with all the supported options used:
 
+```
+#Sample opkg manifest file 
+--- 
 
+#Core Configs 
+name: myapp
+rel_num: 1.2.3
+
+depends:
+ - baseapp 
+#- coreapp LATEST
+#- another_app 1.0.0
+
+conflicts:
+ - badapp 
+
+#Package Content
+files:
+   - greeting/hi.txt: hi.txt
+   - apps: src/archives
+
+#OPKG defined vars: OPKG_NAME, OPKG_REL_NUM, OPKG_ACTION
+vars:
+   - MYAPP_ENV1: "sample env"
+   - DB_NAME: myapp_db
+   - DC_NAME: "{{ DC_NAME }}"
+
+#Deployment Playbook
+pre_deploy:
+ - echo Going to deploy {{ OPKG_NAME }} v{{ OPKG_REL_NUM }}
+ - mkdir -p /etc/myapp
+
+#target_path: source_path
+#target path is relative to OPKG_DEPLOY_DIR
+#source paths is relative to OPKG_STAGE_DIR
+targets:
+   - apps: apps
+   - greeting: greeting
+
+#The target paths are relative to OPKG_DEPLOY_DIR unless absolute path is specified.
+templates:
+   - greeting/hi.txt
+
+#The target paths are relative to OPKG_DEPLOY_DIR unless absolute path is specified.
+replaces:
+   apps/conf/server.conf:
+      - HTTP_PORT=80: HTTP_PORT=9090
+
+#The target paths are relative to OPKG_DEPLOY_DIR unless absolute path is specified.
+symlinks:
+   - /etc/myapp/apps: apps
+
+#The target paths are relative to OPKG_DEPLOY_DIR unless absolute path is specified.
+#Format: PATH: chown_input chmod_input
+permissions:
+   - apps: root:root 0444
+
+#Paths have to be fully qualified with OPKG_INSTALL_ROOT, OPKG_DEPLOY_DIR etc, if needed.
+post_deploy:
+   - cat {{ OPKG_DEPLOY_DIR }}/greeting/hi.txt
+
+rollback:
+
+#Run-time
+#Scripts or bash commands can be specified as a steps for following runtime
+#actions, start, stop  and rollback. restart will run both stop and start in succession.
+#Fully qualify scripts with OPKG_INSTALL_ROOT, OPKG_DEPLOY_DIR etc if needed.
+start:
+stop:
+reload:
+```
 
