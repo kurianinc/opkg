@@ -1,5 +1,5 @@
 # opkg
-**Open Package Project**
+# Open Package Project
 
 Open Package is an open-source project to develop a platform independant packaging tool.
 
