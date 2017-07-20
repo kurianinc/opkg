@@ -1,7 +1,11 @@
 # opkg
 # Open Package Project
 
-Open Package is an open-source project to develop a platform independant packaging tool.
+Open Package is an open-source project to develop a platform independant packaging and deployment tool.
+
+It is similar to rpm or Debian packaging, but, not tied to any specific Operating System or development environments like npm or J2EE.
+
+## Basic Features 
 
 Using Open Package tool a package can be created using the following command:
 
@@ -18,6 +22,8 @@ When installing a package the following syntax can be used as well:
 $ opkg install --pkg=myapp
 
 In the above case, package tool will try to download myapp.tgz from a remote repository or shared drive based on the local repository configuration.
+
+## Package Manifest
 
 Following is a sample package manifest with all the supported options used:
 
