@@ -22,6 +22,13 @@ When installing a package the following syntax can be used as well:
 
 In the above case, package tool will try to download myapp.tgz from a remote repository or shared drive based on the local repository configuration. We will see how a repository can be setup for maintaining opkg packages, in the latter sections.
 
+## Advantages of Open Package
+
+These are the general advtantages of using Open Project in place rpm or similar packaging tools:
+- extremely simple packaging system that uses an open archive format, tarball.
+- opkg packages are flexible enough to be installed in environments with varied configuration.
+- keep track of the state of package. If an app is encapsulated as a package with its lifecycle defined, opkg can manage that easily.
+
 ## Package Manifest
 
 Following is a sample package manifest with all the supported options used:
@@ -100,14 +107,7 @@ reload:
 
 The package manifest follows the YAML format as the extension of the file indicates. There is only one attribute, name of the package,  required in the manifest file. However, to use a package for anything useful, you may have to use multiple options that direct the pakaging of application code and its deployment.
 
-# Package Manifest
-
 There are 3 groups of options that you can specifiy in an opkg manifest that are related to: packaging application code, installing the code and maintaining state of the application. 
 
 An opkg package also supports template variables in manifests, bounded by "{{ }}" - a feature that can be used to install a package to multiple environments with varied configurations. 
-
-These are the general advtanrages of using Open Project in place rpm or similar packaging tools:
-- extremely simple packaging system that uses an open archive format, tarball.
-- opkg packages are flexible enough to be installed in environments with varied configuration.
-- keep track of the state of package. If an app is encapsulated as a package with its lifecycle defined, opkg can manage that easily.
 
