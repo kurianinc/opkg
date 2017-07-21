@@ -128,9 +128,14 @@ reload:
     - wrapper: A wrapper package will not have any content (specified by files option) and created mainly for "packaging" a deployment playbook that uses scripts and other package systems like rpm, and, recording a deployment on a target host.
 platform: generic (default)
 
-## Package Application Code
+## Package Code
 
-## Install Code
+## Push Code
 
 ## Maintain State
 
+# Install Open Package Tool
+
+# Advanced Open Package Features
+
+# How to Contribute to Open Package Project
