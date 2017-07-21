@@ -33,13 +33,32 @@ These are the general advtantages of using Open Project in place rpm or similar 
 
 The package manifest follows the YAML format as the extension of the file indicates. There is only one attribute, name of the package,  required in the manifest file. However, to use a package for anything useful, you may have to use multiple options that direct the pakaging of application code and its deployment.
 
-There are 3 groups of options that you can specifiy in an opkg manifest that are related to: packaging application code, installing the code and maintaining state of the application. 
+There are 4 groups of options that you can specifiy in an opkg manifest that are related to: 
+- package meta data, 
+- packaging application code, 
+- installing the code and 
+- maintaining state of the application. 
 
 An opkg package also supports template variables in manifests, bounded by "{{ }}" - a feature that can be used to install a package to multiple environments with varied configurations.  
 
 ## Sample Package Manifest
 
 Following is a sample package manifest with all the supported options used:
+
+## Package Meta-data
+- name: Name of the package, required.
+- rel_num: Release number of the package, optional. Default dev.
+- type: Allowed values: package,patch,wrapper.
+    - package: a full-fledged package, default.
+    - patch: A package name is specified next to this separated by a space. A patch package will try to make changes in the latest installation of package specified next to it.
+    - wrapper: A wrapper package will not have any content (specified by files option) and created mainly for "packaging" a deployment playbook that uses scripts and other package systems like rpm, and, recording a deployment on a target host.
+platform: generic (default)
+
+## Package Application Code
+
+## Install Code
+
+## Maintain State
 
 ```
 #Sample opkg manifest file 
@@ -48,6 +67,8 @@ Following is a sample package manifest with all the supported options used:
 #Core Configs 
 name: myapp
 rel_num: 1.2.3
+type: package #values: package,patch,wrapper
+platform: generic
 
 depends:
  - baseapp 
