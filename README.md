@@ -45,21 +45,6 @@ An opkg package also supports template variables in manifests, bounded by "{{ }}
 
 Following is a sample package manifest with all the supported options used:
 
-## Package Meta-data
-- name: Name of the package, required.
-- rel_num: Release number of the package, optional. Default dev.
-- type: Allowed values: package,patch,wrapper.
-    - package: a full-fledged package, default.
-    - patch: A package name is specified next to this separated by a space. A patch package will try to make changes in the latest installation of package specified next to it.
-    - wrapper: A wrapper package will not have any content (specified by files option) and created mainly for "packaging" a deployment playbook that uses scripts and other package systems like rpm, and, recording a deployment on a target host.
-platform: generic (default)
-
-## Package Application Code
-
-## Install Code
-
-## Maintain State
-
 ```
 #Sample opkg manifest file 
 --- 
@@ -134,5 +119,18 @@ stop:
 reload:
 ```
 
+## Package Meta-data
+- name: Name of the package, required.
+- rel_num: Release number of the package, optional. Default dev.
+- type: Allowed values: package,patch,wrapper.
+    - package: a full-fledged package, default.
+    - patch: A package name is specified next to this separated by a space. A patch package will try to make changes in the latest installation of package specified next to it.
+    - wrapper: A wrapper package will not have any content (specified by files option) and created mainly for "packaging" a deployment playbook that uses scripts and other package systems like rpm, and, recording a deployment on a target host.
+platform: generic (default)
 
+## Package Application Code
+
+## Install Code
+
+## Maintain State
 
