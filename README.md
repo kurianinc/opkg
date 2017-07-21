@@ -31,6 +31,14 @@ These are the general advtantages of using Open Project in place rpm or similar 
 
 ## Package Manifest
 
+The package manifest follows the YAML format as the extension of the file indicates. There is only one attribute, name of the package,  required in the manifest file. However, to use a package for anything useful, you may have to use multiple options that direct the pakaging of application code and its deployment.
+
+There are 3 groups of options that you can specifiy in an opkg manifest that are related to: packaging application code, installing the code and maintaining state of the application. 
+
+An opkg package also supports template variables in manifests, bounded by "{{ }}" - a feature that can be used to install a package to multiple environments with varied configurations.  
+
+# Sample Package Manifest
+
 Following is a sample package manifest with all the supported options used:
 
 ```
@@ -105,9 +113,5 @@ stop:
 reload:
 ```
 
-The package manifest follows the YAML format as the extension of the file indicates. There is only one attribute, name of the package,  required in the manifest file. However, to use a package for anything useful, you may have to use multiple options that direct the pakaging of application code and its deployment.
 
-There are 3 groups of options that you can specifiy in an opkg manifest that are related to: packaging application code, installing the code and maintaining state of the application. 
-
-An opkg package also supports template variables in manifests, bounded by "{{ }}" - a feature that can be used to install a package to multiple environments with varied configurations. 
 
