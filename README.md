@@ -33,8 +33,9 @@ These are the general advtantages of using Open Project in place rpm or similar 
 
 The package manifest follows the YAML format as the extension of the file indicates. There is only one attribute, name of the package,  required in the manifest file. However, to use a package for anything useful, you may have to use multiple options that direct the pakaging of application code and its deployment.
 
-There are 4 groups of options that you can specifiy in an opkg manifest that are related to: 
+There are 5 groups of options that you can specifiy in an opkg manifest that are related to: 
 - package meta data, 
+- package dependencies,
 - packaging application code, 
 - installing the code and 
 - maintaining state of the application. 
@@ -57,8 +58,8 @@ platform: generic
 
 depends:
  - baseapp 
-#- coreapp LATEST
 #- another_app 1.0.0
+#- yet_another_app 1.1.1-2.3.0
 
 conflicts:
  - badapp 
@@ -128,7 +129,13 @@ reload:
     - wrapper: A wrapper package will not have any content (specified by files option) and created mainly for "packaging" a deployment playbook that uses scripts and other package systems like rpm, and, recording a deployment on a target host.
 platform: generic (default)
 
-## Package Code
+## Dependencies
+- depends: Dependencies to other packages can be specified in the following format:
+    - package_name [release_num_info], where release_num_info is optional and it could be:
+        - release_num: Any release beginning this version and above would be met as dependency requirement.
+        - release_num_start - release_num_end: The dependency will be checked for within this retricted range. 
+
+- conflicts: As in the case of "depends" option, a conflicting package can be specified with optional release number or release range restrictions.
 
 ## Push Code
 
