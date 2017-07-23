@@ -181,11 +181,17 @@ These variables are available in the runtime environment so deployment and runti
 
 #### System Defined Variables
 The package tool makes these variables available for templates and scripts:
+- OPKG_ROOT_DIR: The directory where package tool specific files and meta data are maintained. Default: /etc/opkg
 - OPKG_NAME: Name of package being deployed or run.
 - OPKG_REL_NUM: Release number of the package being deployed or run.
 - OPKG_ACTION: The action being done using package tool, like install, start etc.
 - OPKG_INSTALL_STEP: Package installation process has multiple steps like pre_deploy,targets,symlinks,post_deploy etc. These options correspond to the deployment options specified in the manifest.
-- OPKG_DEPLOY_DIR: This is the common location setup for a deployment session. The package is deployed under OPKG_DEPLOY_DIR/OPKG_NAME.
+- OPKG_STAGE_DIR: The location where a package is extracted prior to starting the deployment steps, and, it will be available begining the step "targets".
+- OPKG_INSTALL_ROOT: The root directory under which package installations are done on the target system.
+- OPKG_DEPLOY_TS: A timestamp used to track a deployment session across packages.
+- OPKG_DEPLOY_DIR: The package is deployed under this directory and it is OPKG_INSTALL_ROOT/OPKG_DEPLOY_TS/pkg_name.
+- OPKG_META_LATEST: Content of existing Latest.meta for the package.
+- OPKG_META_PREVIOUS: Content of existing Previous.meta for the package.
 
 #### Externally Provided Variables
 To make these variable available to templates and scripts, they must be defined in the manifest as in the following example:
@@ -204,9 +210,143 @@ The values to these variables can be provided from the command-line using the fo
 
 ## Deploy Code
 
+Multiple packages can be specified in a deployment session as below:
+
+```
+$ opkg deploy --pkg=pkg1-latest,pkg2-latest,pkg3-1.2.3
+```
+In this case, latest versions of pk1 and pkg2 and pkg3-1.2.3 will be deployed. 
+
+All the packages deployed during the same session will be installed under a common root directory OPKG_INSTALL_ROOT/OPKG_DEPLOY_TS. The OPKG_DEPLOY_DIR will be OPKG_INSTALL_ROOT/OPKG_DEPLOY_TS/pkg_name, under which, a package is installed.
+
+Installation of a package is done in multiple steps and those steps are described in the following sections in the same order they are executed as tasks in a playbook.
+
+A host can end up having multiple installations of the same package from multiple deployments. The package installation data are stored under OPKG_DIR/meta/pkg_name, and, to keep track of installations, 2 meta files, Latest.meta and Previous.meta, are maintained under OPKG_DIR/meta/pkg_name for each package.
+
+Multiple installations on a host can be pruned to 2, the latest and the previous, using following command:
+
+```
+$ opkg clean [--count=COUNT]
+```
+The count option can be specified to remove only the specified number of installations. Useful only if you like to keep more than 2 installations around. The best practice is only to maintain only 2 installations.
+
+The deployment history on a host can be checked using the command:
+
+```
+$ opkg history [--count=COUNT]
+```
+The count option can be used to list only the specified number of latest entries from the history log.
+
+### pre_deploy
+Multiple steps can be specified pre-installation steps as below:
+
+```
+pre_deploy:
+ - echo Going to deploy {{ OPKG_NAME }} v{{ OPKG_REL_NUM }}
+ - mkdir -p /etc/myapp
+ ```
+ The package is extracted and the variables specified in the manifest are resolved at this stage. But rest of the installation process is not started so a pre-deploy step should not rely on scripts the package with template variables and tokens.
+ 
+### targets
+Using this option, files and directories in the package can be copied anywhere on the target system.
+
+```
+targets:
+   - apps: apps
+   - greeting: greeting
+```
+The key in this specification is the target location and the value is the corresponding source in the package. Normally, a relative path is specified for target and that will translate to OPKG_DEPLOY_DIR/target_path.
+
+### templates
+
+This is a powerful option to make environment specific changes to the generic application configuration files maintained source code control system, as in the following example:
+```
+templates:
+   - greeting/hi.txt
+   - apps/conf
+```
+The paths are relative to OPKG_DEPLOY_DIR unless an absolute path is specified. If a file is specified, opkg will look at that file for template variables specified in the format {{ var_name }}. If found, {{ var_name }} is replaced with related hash value. If the hash value is not available, package tool will throw error.
+
+If a directory is specified, all the files in that directory will be checked for template variables. This is not recursive and so sub-directories have to be specified, if needed.
+
+As a best practice, configuration files with template variables must be limited to few directories and files for simpler handling and minimizing deployment errors.
+
+### replaces
+
+This is another available to configure applications for a specific environment. While "templates" option rely on template variables that are enclosed with "{{ }}" in a file and such instrumentations will be possible only in your own applications. If some change has to be done in a third-party application, for example Tomcat Server that runs your application war file, then you have to use this search and replace option.
+
+```
+replaces:
+   apps/conf/server.conf:
+      - HTTP_PORT=80: HTTP_PORT=9090
+```
+Using this option, multiple files or directories can be specified in which tokens have to be replaced with values provided from the manifest. In the example, in OPKG_DEPLOY_DIR/apps/conf/server.conf, every occurance of "HTTP_PORT=80" will be replaced with "HTTP_PORT=9090".
+
+### symlinks
+
+This option is used mainly to mark the latest deployment as the currently one. However, any number of symlinks can be defined on the target host using this option. 
+```
+symlinks:
+   - /etc/myapp/apps: apps
+```
+The hash key in this specification is the symlink and the hash value is the source. The package tool doesn't make any validation checks on these paths and it's up to the designer of the package to specify appropriate paths. The package tool will try to create those as part of this installation step.
+
+### permissions
+
+The permission settings that can be implemented using chown and chmod commands can be set using this option.
+
+```
+permissions:
+   - apps: root:root 0444
+```
+In the example above, the changes will be same as that done by the following commands:
+```
+$ chown -R root:root OPKG_DEPLOY_DIR/apps
+$ chmod -R 0444 OPKG_DEPLOY_DIR/apps
+```
+### post_deploy
+Multiple post-deployment steps can be specified under this section. The relative paths are not supported in this step and all the paths should be fully qualified as in the following example.
+
+```
+post_deploy:
+   - cat {{ OPKG_DEPLOY_DIR }}/greeting/hi.txt
+```
+Keywords START,STOP and RESTART can also be specified. The package tool will try to execute the related runtime steps as the action.
+
+### rollback
+
+This step is not part of a deployment step but it can be used to rollback a deployment to its previous version if a previous deployment exists.
+
+The package designer is fully responsible for the steps that would reliably rollback a deployment. The package tool simply executed the commands listed under this section.
+
+A rollback action cannot be rolled back. When rollback is executed successfully, package tool renames existing Previous.meta file to Latest.meta. To make the actual rollback, steps have to be provided under this section and they can use the info available in OPKG_META_PREVIOUS and OPKG_META_LATEST.
+
+Unless there is a compelling case for rollback, this option should not be used as part of settig up your production environment. The older versions of deployments are kept for debugging purposes. In an ideal scenario the deployment should be part of building an immutable runtime environment, and, instead of rolling back you should rebuild the application environment using versions of package that is known to have been working.
+
 ## Maintain Runtime State
 
+Following are the actions that you can use from package tool to maintain running state of a package:
+- start
+- stop
+- restart
+- reload
+
+```
+$ opkg [start|stop|restart|reload] --pkg=myapp
+```
+When these actions are called, the variables specified under "vars" and the applicable system variables are loaded and made available to the scripts and commands specified under the corresponding section in the package manifest.
+
+Though these actions are modelled after the Linux service actions, no attempt is made to keep track of which runtime action is last called and succeeded. For example, everytime "start" is called, all the scripts and commands specified under this section will be executed. So, it is up to the package designer to build robust scripts to start and stop applications, if these package options are for application maintenance.
+
 # Install Open Package Tool
+
+Until more automated methods are available, use these simple manual steps to install package tool on your system:
+
+```
+- Save opkg.py from GitHub to /etc/opkg/bin/ on your local system.
+$ chmod +x /etc/opkg/bin/opkg.py
+$ ln -s /etc/opkg/bin/opkg.py /usr/local/bin/opkg
+```
 
 # Advanced Open Package Features
 
