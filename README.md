@@ -350,4 +350,6 @@ $ ln -s /etc/opkg/bin/opkg.py /usr/local/bin/opkg
 
 # Advanced Features
 
+# Use Cases
+
 # How to Contribute
