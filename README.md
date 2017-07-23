@@ -342,11 +342,13 @@ Though these actions are modelled after the Linux service actions, no attempt is
 
 Until more automated methods are available, use these simple manual steps to install package tool on your system:
 
-```
 - Save opkg.py from GitHub to /etc/opkg/bin/ on your local system.
-$ chmod +x /etc/opkg/bin/opkg.py
-$ ln -s /etc/opkg/bin/opkg.py /usr/local/bin/opkg
+- Install the command using these steps:
 ```
+$ chmod +x /etc/opkg/bin/opkg.py
+$ ln -s /etc/opkg/bin/opkg.py /usr/local/bin/opkg #symlink could be added to a different directory also, like /usr/bin or /bin, if that is part of system PATH.
+```
+- The hashbang to python interpreter points to /usr/bin/python (usually a valid path on Mac platforms) in the GitHub version of opkg.py. If needed, update that to a valid path depending on where Python is installed on your system. Python 2.7 or higher is needed to run package tool.
 
 # Advanced Features
 
