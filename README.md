@@ -338,17 +338,33 @@ When these actions are called, the variables specified under "vars" and the appl
 
 Though these actions are modelled after the Linux service actions, no attempt is made to keep track of which runtime action is last called and succeeded. For example, everytime "start" is called, all the scripts and commands specified under this section will be executed. So, it is up to the package designer to build robust scripts to start and stop applications, if these package options are for application maintenance.
 
-# Install Open Package Tool
+# Installation
 
-Until more automated methods are available, use these simple manual steps to install package tool on your system:
+## Manual Steps
 
-- Save opkg.py from GitHub to /etc/opkg/bin/ on your local system.
+Until more automated methods are available, use these steps to install package tool on your system:
+
+- Save openpkg.py from GitHub to /etc/opkg/bin/ on your local system.
 - Install the command using these steps:
 ```
-$ chmod +x /etc/opkg/bin/opkg.py
-$ ln -s /etc/opkg/bin/opkg.py /usr/local/bin/opkg #symlink could be added to a different directory also, like /usr/bin or /bin, if that is part of system PATH.
+$ chmod +x /etc/opkg/bin/openpkg.py
+$ ln -s /etc/opkg/bin/openpkg.py /usr/local/bin/opkg 
 ```
 - The hashbang to python interpreter points to /usr/bin/python (usually a valid path on Mac platforms) in the GitHub version of opkg.py. If needed, update that to a valid path depending on where Python is installed on your system. Python 2.7 or higher is needed to run package tool.
+
+- In /etc/opkg/conf/opkg.env, add the following config items and save:
+```
+[basic]
+opkg_dir=/etc/opkg
+deploy_history_file=deploy_history.log
+install_root=/opt/apps
+```
+
+- To test the installation, check the version and you will see an output similar to the following:
+```
+$ opkg --version
+opkg v0.1.0
+```
 
 # Advanced Features
 
