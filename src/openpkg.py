@@ -346,7 +346,7 @@ class Pkg():
                 tgt_path,src_path=re.split(':',symlink)
                 if not re.match("^\/", tgt_path): tgt_path = deploy_dir + "/" + tgt_path
                 if not re.match("^\/", src_path): src_path = deploy_dir + "/" + src_path
-                cmd = "ln -f -s " + src_path + " " + tgt_path
+                cmd = "ln -sfn " + src_path + " " + tgt_path
                 if not execOSCommand(cmd):
                     print "Error: Problem creating symlink " + cmd
                     return False
