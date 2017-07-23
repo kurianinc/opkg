@@ -348,6 +348,6 @@ $ chmod +x /etc/opkg/bin/opkg.py
 $ ln -s /etc/opkg/bin/opkg.py /usr/local/bin/opkg
 ```
 
-# Advanced Open Package Features
+# Advanced Features
 
-# How to Contribute to Open Package Project
+# How to Contribute
