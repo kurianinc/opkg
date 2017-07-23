@@ -1,0 +1,6 @@
+hi
+#generated from template 
+
+Package: {{ OPKG_NAME }}, release: {{ OPKG_REL_NUM }}
+Data center: {{ DC_NAME }}
+
