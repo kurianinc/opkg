@@ -344,8 +344,12 @@ Though these actions are modelled after the Linux service actions, no attempt is
 
 Until more automated methods are available, use these steps to install package tool on your system:
 
-- Save openpkg.py from GitHub to /etc/opkg/bin/ on your local system.
-- Install the command using these steps:
+- Clone or download opkg repo from GitHub to your local system: 
+```
+$ git clone https://github.com/kurianinc/opkg.git
+```
+- Copy src/openpkg.py to /etc/opkg/bin/ on your local system.
+- Setup opkg the command using these steps:
 ```
 $ chmod +x /etc/opkg/bin/openpkg.py
 $ ln -s /etc/opkg/bin/openpkg.py /usr/local/bin/opkg 
@@ -366,7 +370,37 @@ $ opkg --version
 opkg v0.1.0
 ```
 
+# Building Sample Package
+
+In the opkg repo, manifest for a sample package, myapp, is available under pkgs folder. The files used in that package are under the examples/myapp folder. You can try building this package locally as follows:
+```
+$ cd pkgs
+$ opkg create --pkg=myapp
+```
+
+If everything goes well, you will see myapp.tgz created in the same directory.
+
+You can try deploying that tarball locally using deploy command:
+
+```
+$ opkg deploy --pkg=myapp.tgz --extra-vars=DC_NAME=us-west-1
+```
+
+Please note that DC_NAME is a template variable used in hi.txt file. You will see that the output of that file is printed as a post-deployment step like the following:
+```
+$ opkg deploy --pkg=myapp.tgz --extra-vars=DC_NAME=us-west-1
+
+Going to deploy myapp vdev
+hi
+#generated from template 
+
+Package: myapp, release: dev
+Data center: us-west-1
+
+```
+
 # Advanced Features
+TBD
 
 # Use Cases
 
