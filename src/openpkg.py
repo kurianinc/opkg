@@ -119,6 +119,36 @@ class Pkg():
         self.install_meta=None #meta data of existing installation
         self.install_md5=None #md5 of currently installed version
 
+    @staticmethod
+    def parseName(pkg_label):
+        '''pkg can be specified in following ways:
+        - /path/to/mypkg.tgz -- tarball available on locally
+        - /path/to/mypkg-rel_num.tgz -- tarball available on locally
+        - mypkg
+        - mypkg-rel_num
+        '''
+        pkg_name_rel_num = os.path.basename(pkg_label)
+        pkg_name_rel_num = pkg_name_rel_num.replace('.tgz', '')
+        tarball_name = pkg_name_rel_num + '.tgz'
+        pkg_name = re.split('-', pkg_name_rel_num)[0]
+
+        return pkg_name,pkg_name_rel_num,tarball_name
+
+    @staticmethod
+    def parseTarballName(tarball_name):
+        rel_num, rel_ts = 'dev', None
+        '''The dev version will not have any rel_num or rel_ts
+        The parsing is based on the assumption that the tarball names can have only 2 formats:
+         name.tgz - dev
+         name-rel_num-rel_ts.tgz - release
+        '''
+        m = re.search('.+?-(.+?)-(.+).tgz', tarball_name)
+        if m:
+            rel_num = m.group(1)
+            rel_ts = m.group(2)
+
+        return rel_num,rel_ts
+
     def setManifest(self,f):
         self.manifest_path=f
     def loadManifest(self):
@@ -387,7 +417,6 @@ class Pkg():
     def isInstalled(self,tarball_path):
         if not self.getMeta()['latest_install']:
             return False
-
         md5_local = self.install_meta['latest_install']['pkg_md5']
 
         return (getFileMD5(tarball_path) == md5_local)
@@ -498,11 +527,11 @@ class opkg():
         print script + " rls [--pkg=pkg1,pkg2,...]"
         print script + " create --pkg=pkg1,pkg2,... [--release]"
         print script + " put --file=/tarball/with/full/path"
-        print script + " get --pkg=pkg1,pkg2,... [--release=release_num] [--path=/download/path] [--develop]"
-        print script + " deploy --pkg=pkg1,pkg2,... [--install_root=/path/to/install] [--develop]"
-        print script + " start|stop|restart --pkg=pkg1,pkg2,... [--install_root=/path/to/install] [--develop]"
-        print script + " rollback --pkg=pkg1,pkg2,... [--install_root=/path/to/install] [--release=REL_NUM]"
-        print script + " clean [--pkg=pkg1,pkg2,...] [--installs_count=count-of-installs-to-keep] [--install_root=/path/to/install]"
+        print script + " get --pkg=pkg1,pkg2,... [--release=REL_NUM|dev] [--path=/download/path]" 
+        print script + " deploy --pkg=pkg1,pkg2[-REL_NUM|dev],... [--install_root=/path/to/install]"
+        print script + " start|stop|restart|reload --pkg=pkg1,pkg2,... [--install_root=/path/to/install]"
+        print script + " rollback --pkg=pkg1,pkg2,... [--install_root=/path/to/install]"
+        print script + " clean [--pkg=pkg1,pkg2,...] [--count=COUNT] [--install_root=/path/to/install]"
 
         return True
 
@@ -514,20 +543,23 @@ class opkg():
             for pkg in self.pkgs:
                 pkg_inst=Pkg(pkg)
                 pkg_inst.create()
+
+        elif self.action=='ls':
+            self.extra_vars['ACTION'] = 'ls'
+            for pkg in self.pkgs:
+                pkg_name, pkg_name_rel_num, tarball_name = Pkg.parseName(pkg)
+                pkg_inst=Pkg(pkg_name)
+                pkg_inst.setEnvConfig(self.configs)
+                pkg_inst.loadMeta()
+                pkg_meta=pkg_inst.getMeta()
+                if not pkg_meta: continue
+                print pkg_name+'-'+pkg_meta['latest_install']['pkg_rel_num']
+
         elif self.action=='deploy':
             self.extra_vars['ACTION'] = 'deploy'
             deploy_inst=Deploy(self.configs,self.arg_dict,self.extra_vars)
             for pkg in self.pkgs:
-                '''pkg can be specified in following ways:
-                - /path/to/mypkg.tgz -- tarball available on locally
-                - /path/to/mypkg-rel_num.tgz -- tarball available on locally
-                - mypkg
-                - mypkg-rel_num
-                '''
-                pkg_name_rel_num=os.path.basename(pkg)
-                pkg_name_rel_num=pkg_name_rel_num.replace('.tgz','')
-                tarball_name=pkg_name_rel_num+'.tgz'
-                pkg_name=re.split('-',pkg_name_rel_num)[0]
+                pkg_name,pkg_name_rel_num,tarball_name=Pkg.parseName(pkg)
                 is_local=False
                 if re.match('^.+?\.tgz',pkg): is_local=True
                 download_dir=self.opkg_dir+'/pkgs/'+pkg_name
@@ -585,16 +617,7 @@ class Deploy():
 
     '''The tarball is downloaded/copied to download_dir'''
     def installPackage(self,pkg_name,tarball_name):
-        rel_num,rel_ts='dev',None
-        '''The dev version will not have any rel_num or rel_ts
-        The parsing is based on the assumption that the tarball names can have only 2 formats:
-         name.tgz - dev
-         name-rel_num-rel_ts.tgz - release
-        '''
-        m = re.search('.+?-(.+?)-(.+).tgz', tarball_name)
-        if m:
-            rel_num = m.group(1)
-            rel_ts = m.group(2)
+        rel_num,rel_ts=Pkg.parseTarballName(tarball_name)
 
         self.extra_vars['OPKG_NAME'] = pkg_name
         self.extra_vars['OPKG_REL_NUM'] = rel_num
