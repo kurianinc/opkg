@@ -1,0 +1,21 @@
+#Open Package Tool (opkg)
+--- 
+name: opkg
+rel_num: 0.1.0
+
+files:
+   - bin/opkg: ../src/openpkg.py
+   - conf/opkg.env: ../conf/opkg.env
+
+pre_deploy:
+   - echo Python module yaml must be installed on the local machine for opkg to work.
+
+targets:
+   - /usr/local/bin/opkg: bin/opkg
+   - /etc/opkg/conf/opkg.env: conf/opkg.env
+
+permissions:
+   - /usr/local/bin/opkg: root:root 0755
+
+post_deploy:
+   - "{{ OPKG_STAGE_DIR }}/fix-opkg"
