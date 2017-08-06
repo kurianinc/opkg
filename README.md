@@ -130,7 +130,7 @@ hi
 
 Package: myapp, release: dev
 Data center: us-west-1
-
+```
 
 # Package Manifest
 
