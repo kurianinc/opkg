@@ -5,17 +5,20 @@ rel_num: 0.1.0
 
 files:
    - bin/opkg: ../src/openpkg.py
-   - conf/opkg.env: ../conf/opkg.env
+   - bin/fix-opkg: ../src/scripts/fix-opkg
+   - conf/opkg.env: ../src/conf/opkg.env
 
 pre_deploy:
-   - echo Python module yaml must be installed on the local machine for opkg to work.
+   - echo Info: Python module yaml must be installed on the local machine for opkg to work.
 
 targets:
    - /usr/local/bin/opkg: bin/opkg
    - /etc/opkg/conf/opkg.env: conf/opkg.env
+   - bin/fix-opkg: bin/fix-opkg
 
 permissions:
-   - /usr/local/bin/opkg: root:root 0755
+   - /usr/local/bin/opkg: root 0755
+   - bin/fix-opkg: root 0755
 
 post_deploy:
-   - "{{ OPKG_STAGE_DIR }}/fix-opkg"
+   - "{{ OPKG_DEPLOY_DIR }}/bin/fix-opkg /usr/local/bin/opkg"

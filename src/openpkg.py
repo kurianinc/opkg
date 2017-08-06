@@ -9,7 +9,7 @@ import time
 import hashlib
 import sys
 
-'''Default config file. This can be overridden by opkg CLI option --conf-file'''
+'''This file will be looked up under OPKG_DIR/conf'''
 OPKG_CONF_FILE='/etc/opkg/conf/opkg.env'
 
 META_FILE_PREVIOUS='Previous.meta'
@@ -166,7 +166,7 @@ class Pkg():
         meta_path = meta_dir + "/" + META_FILE_LATEST
         self.install_meta['latest_install']=self.loadMetaFile(meta_path)
         if not self.install_meta['latest_install']:
-            print "Info: No active installation of "+self.name+" found."
+            print "Info: No active installation of "+self.name+" found at "+self.env_conf['basic']['opkg_dir']
         meta_path = meta_dir + "/" + META_FILE_PREVIOUS
         self.install_meta['previous_install'] = self.loadMetaFile(meta_path)
         if not self.install_meta['previous_install']:
@@ -388,9 +388,9 @@ class Pkg():
         perms = pkg_manifest.getSectionItems('permissions')
         if perms:
             for perm in perms:
-                fpath, owner,group,chmod_opt = re.split('[ :]', perm)
+                fpath, perm_opt = perm.split(':',1)
+                chown_opt,chmod_opt = perm_opt.split(' ')
                 if not re.match("^\/", fpath): fpath = deploy_dir + "/" + fpath
-                chown_opt=owner+':'+group
                 cmd="chown -R "+chown_opt+" "+fpath+';chmod -R '+chmod_opt+' '+fpath
                 if not execOSCommand(cmd):
                     print "Error: Problem setting permissions on " + fpath+'. Command: '+cmd
@@ -411,6 +411,8 @@ class Pkg():
         os.chdir("/tmp")  # a workaround to avoid system warning when curr dir stage_dir is deleted.
         if not execOSCommand('rm -r ' + stage_dir):
             print "Warning: Couldn't delete " + stage_dir
+
+        print "Info: Package "+self.name+" has been installed at "+deploy_dir
 
         return True
 
@@ -633,6 +635,7 @@ class Deploy():
             pkg.install(tarball_path,self)
         else:
             print "Info: This revision of package "+pkg_name+" is already installed at "+self.install_root+'/installs/'+pkg.getMeta()['latest_install']['deploy_ts']+'/'+pkg_name
+            print "Info: Use --force option to override."
 
         return True
 
