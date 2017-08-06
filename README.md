@@ -29,6 +29,81 @@ These are the general advtantages of using Open Project in place rpm or similar 
 - opkg packages are flexible enough to be installed in environments with varied configuration.
 - keep track of the state of package. If an app is encapsulated as a package with its lifecycle defined, opkg can manage that easily.
 
+# Getting Started
+
+## One step installation
+
+Installation of Open Package Tool can be done in one step on most of the Mac and Linux platforms, as below:
+
+```
+$ curl -s -k https://s3-us-west-2.amazonaws.com/opkg-repo/install-opkg.sh |sudo bash -s
+```
+
+## Manual installation
+
+If the automated installation process didn't work for some reason, there are 2 options to install Open Package Tool manually.
+
+### Install stable version
+
+This is the same version the automated process tries to install on your system.
+
+- Download stable version of opkg.tgz using curl or wget or even from the web browser:
+```
+$ wget https://s3-us-west-2.amazonaws.com/opkg-repo/opkg.tgz
+```
+
+- Extract the archive at some temporary location:
+```
+$ tar xzf opkg.tgz
+```
+
+- Copy opkg to /usr/local/bin or any other directory on your system PATH:
+```
+$ sudo cp bin/opkg /usr/local/bin/
+$ sudo chmod +x /usr/local/bin/opkg
+```
+
+- Setup config file opkg.env
+```
+$ mkdir -p /etc/opkg/conf
+$ cp conf/opkg.env /etc/opkg/conf/
+$ chmod +r /etc/opkg/conf/opkg.env
+```
+
+- Run "opkg" and see it works. If needed edit /usr/local/bin/opkg and adjust the Python hashbang for your system depending on where is Python installed.
+```
+$ opkg --version
+```
+
+### Install from GitHub
+
+Github has the current version of Package Tool and you can install that version if you are looking for a new feature or latest bug fix.
+
+
+- Clone or download opkg repo from GitHub to your local system: 
+```
+$ git clone https://github.com/kurianinc/opkg.git
+```
+- Copy src/openpkg.py to /usr/local/bin/ or another directory that is on your local system PATH, as opkg.
+```
+$ sudo cp src/openpkg.py /usr/local/bin/opkg
+$ sudo chmod +x /usr/local/bin/opkg
+```
+- The hashbang to python interpreter points to /usr/bin/python (usually a valid path on Mac platforms) in the GitHub version of opkg.py. If needed, update that to a valid path depending on where Python is installed on your system. Python 2.7 or higher is needed to run package tool.
+
+- Setup config file opkg.env
+```
+$ mkdir -p /etc/opkg/conf
+$ cp conf/opkg.env /etc/opkg/conf/
+$ chmod +r /etc/opkg/conf/opkg.env
+```
+
+- To test the installation, check the version and you will see an output similar to the following:
+```
+$ opkg --version
+opkg v0.1.0
+```
+
 # Package Manifest
 
 The package manifest follows the YAML format as the extension of the file indicates. There is only one attribute, name of the package,  required in the manifest file. However, to use a package for anything useful, you may have to use multiple options that direct the pakaging of application code and its deployment.
@@ -338,80 +413,6 @@ When these actions are called, the variables specified under "vars" and the appl
 
 Though these actions are modelled after the Linux service actions, no attempt is made to keep track of which runtime action is last called and succeeded. For example, everytime "start" is called, all the scripts and commands specified under this section will be executed. So, it is up to the package designer to build robust scripts to start and stop applications, if these package options are for application maintenance.
 
-# Installation
-
-## One step method
-
-Installation of Open Package Tool can be done in one step on most of the Mac and Linux platforms, as below:
-
-```
-$ curl -s -k https://s3-us-west-2.amazonaws.com/opkg-repo/install-opkg.sh |sudo bash -s
-```
-
-## Manual Steps
-
-If the automated installation process didn't work for some reason, there are 2 options to install Open Package Tool manually.
-
-### Install latest, stable version
-
-This is the same version the automated process tries to install on your system.
-
-- Download stable version of opkg.tgz using curl or wget or even from the web browser:
-```
-$ wget https://s3-us-west-2.amazonaws.com/opkg-repo/opkg.tgz
-```
-
-- Extract the archive at some temporary location:
-```
-$ tar xzf opkg.tgz
-```
-
-- Copy opkg to /usr/local/bin or any other directory on your system PATH:
-```
-$ sudo cp bin/opkg /usr/local/bin/
-$ sudo chmod +x /usr/local/bin/opkg
-```
-
-- Setup config file opkg.env
-```
-$ mkdir -p /etc/opkg/conf
-$ cp conf/opkg.env /etc/opkg/conf/
-$ chmod +r /etc/opkg/conf/opkg.env
-```
-
-- Run "opkg" and see it works. If needed edit /usr/local/bin/opkg and adjust the Python hashbang for your system depending on where is Python installed.
-```
-$ opkg --version
-```
-
-### Install GitHub version
-
-Github has the current version of Package Tool and you can install that version if you are looking for a new feature or latest bug fix.
-
-
-- Clone or download opkg repo from GitHub to your local system: 
-```
-$ git clone https://github.com/kurianinc/opkg.git
-```
-- Copy src/openpkg.py to /usr/local/bin/ or another directory that is on your local system PATH, as opkg.
-```
-$ sudo cp src/openpkg.py /usr/local/bin/opkg
-$ sudo chmod +x /usr/local/bin/opkg
-```
-- The hashbang to python interpreter points to /usr/bin/python (usually a valid path on Mac platforms) in the GitHub version of opkg.py. If needed, update that to a valid path depending on where Python is installed on your system. Python 2.7 or higher is needed to run package tool.
-
-- Setup config file opkg.env
-```
-$ mkdir -p /etc/opkg/conf
-$ cp conf/opkg.env /etc/opkg/conf/
-$ chmod +r /etc/opkg/conf/opkg.env
-```
-
-- To test the installation, check the version and you will see an output similar to the following:
-```
-$ opkg --version
-opkg v0.1.0
-```
 
 # Building Sample Package
 
