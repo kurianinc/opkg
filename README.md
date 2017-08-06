@@ -441,8 +441,6 @@ When these actions are called, the variables specified under "vars" and the appl
 
 Though these actions are modelled after the Linux service actions, no attempt is made to keep track of which runtime action is last called and succeeded. For example, everytime "start" is called, all the scripts and commands specified under this section will be executed. So, it is up to the package designer to build robust scripts to start and stop applications, if these package options are for application maintenance.
 
-```
-
 # Advanced Features
 TBD
 
