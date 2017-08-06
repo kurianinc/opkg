@@ -14,11 +14,11 @@ The above command will create a tarball myapp.tgz based on the meta-data defined
 
 A package is installed on the local system as in the following example:
 
-```$ opkg install --pkg=/path/to/myapp.tgz```
+```$ opkg deploy --pkg=/path/to/myapp.tgz```
 
 When installing a package the following syntax can be used as well:
 
-```$ opkg install --pkg=myapp```
+```$ opkg deploy --pkg=myapp```
 
 In the above case, package tool will try to download myapp.tgz from a remote repository or shared drive based on the local repository configuration. We will see how a repository can be setup for maintaining opkg packages, in the latter sections.
 
