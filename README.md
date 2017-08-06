@@ -104,6 +104,34 @@ $ opkg --version
 opkg v0.1.0
 ```
 
+## Building Sample Package
+
+In the opkg repo, manifest for a sample package, myapp, is available under pkgs folder. The files used in that package are under the examples/myapp folder. You can try building this package locally as follows:
+```
+$ cd pkgs
+$ opkg create --pkg=myapp
+```
+
+If everything goes well, you will see myapp.tgz created in the same directory.
+
+You can try deploying that tarball locally using deploy command:
+
+```
+$ opkg deploy --pkg=myapp.tgz --extra-vars=DC_NAME=us-west-1
+```
+
+Please note that DC_NAME is a template variable used in hi.txt file. You will see that the output of that file is printed as a post-deployment step like the following:
+```
+$ opkg deploy --pkg=myapp.tgz --extra-vars=DC_NAME=us-west-1
+
+Going to deploy myapp vdev
+hi
+#generated from template 
+
+Package: myapp, release: dev
+Data center: us-west-1
+
+
 # Package Manifest
 
 The package manifest follows the YAML format as the extension of the file indicates. There is only one attribute, name of the package,  required in the manifest file. However, to use a package for anything useful, you may have to use multiple options that direct the pakaging of application code and its deployment.
@@ -412,34 +440,6 @@ $ opkg [start|stop|restart|reload] --pkg=myapp
 When these actions are called, the variables specified under "vars" and the applicable system variables are loaded and made available to the scripts and commands specified under the corresponding section in the package manifest.
 
 Though these actions are modelled after the Linux service actions, no attempt is made to keep track of which runtime action is last called and succeeded. For example, everytime "start" is called, all the scripts and commands specified under this section will be executed. So, it is up to the package designer to build robust scripts to start and stop applications, if these package options are for application maintenance.
-
-
-# Building Sample Package
-
-In the opkg repo, manifest for a sample package, myapp, is available under pkgs folder. The files used in that package are under the examples/myapp folder. You can try building this package locally as follows:
-```
-$ cd pkgs
-$ opkg create --pkg=myapp
-```
-
-If everything goes well, you will see myapp.tgz created in the same directory.
-
-You can try deploying that tarball locally using deploy command:
-
-```
-$ opkg deploy --pkg=myapp.tgz --extra-vars=DC_NAME=us-west-1
-```
-
-Please note that DC_NAME is a template variable used in hi.txt file. You will see that the output of that file is printed as a post-deployment step like the following:
-```
-$ opkg deploy --pkg=myapp.tgz --extra-vars=DC_NAME=us-west-1
-
-Going to deploy myapp vdev
-hi
-#generated from template 
-
-Package: myapp, release: dev
-Data center: us-west-1
 
 ```
 
